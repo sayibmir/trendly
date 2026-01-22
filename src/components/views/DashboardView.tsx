@@ -13,6 +13,7 @@ import TimingHeatmap from '@/components/dashboard/TimingHeatmap';
 import CompetitorsListWidget from '@/components/dashboard/CompetitorsListWidget';
 import ComparisonWidget from '@/components/dashboard/ComparisonWidget';
 import GapAnalysisWidget from '@/components/dashboard/GapAnalysisWidget';
+import AIInsightsWidget from '@/components/dashboard/AIInsightsWidget';
 import AddCompetitorModal from '@/components/competitors/AddCompetitorModal';
 import { User, TrendingUp, Users } from 'lucide-react';
 
@@ -145,6 +146,11 @@ export default function DashboardView() {
         {/* Top Posts */}
         <div className="col-span-12 lg:col-span-6">
           <TopPostsWidget />
+        </div>
+
+        {/* AI Insights */}
+        <div className="col-span-12">
+          <AIInsightsWidget />
         </div>
 
         {/* Trend Insights */}
