@@ -6,6 +6,7 @@ import {
   TrendInsight,
   ActionableSuggestion,
   DashboardWidget,
+  UserProfile,
 } from '@/types';
 import {
   mockCompetitors,
@@ -16,6 +17,15 @@ import {
 } from '@/data/mockData';
 
 interface AppState {
+  // User Profile (the creator using the app)
+  userProfile: UserProfile | null;
+  userPosts: Post[];
+  isOnboarded: boolean;
+  setUserProfile: (profile: UserProfile) => void;
+  setUserPosts: (posts: Post[]) => void;
+  clearUserProfile: () => void;
+  setOnboarded: (value: boolean) => void;
+
   // Competitors
   competitors: Competitor[];
   selectedCompetitorId: string | null;
@@ -41,8 +51,8 @@ interface AppState {
   // UI State
   sidebarOpen: boolean;
   toggleSidebar: () => void;
-  activeView: 'dashboard' | 'competitors' | 'analytics' | 'reports' | 'settings';
-  setActiveView: (view: 'dashboard' | 'competitors' | 'analytics' | 'reports' | 'settings') => void;
+  activeView: 'dashboard' | 'competitors' | 'analytics' | 'reports' | 'settings' | 'onboarding';
+  setActiveView: (view: 'dashboard' | 'competitors' | 'analytics' | 'reports' | 'settings' | 'onboarding') => void;
 
   // Search & Filters
   searchQuery: string;
@@ -58,6 +68,15 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
+      // User Profile
+      userProfile: null,
+      userPosts: [],
+      isOnboarded: false,
+      setUserProfile: (profile) => set({ userProfile: profile, isOnboarded: true }),
+      setUserPosts: (posts) => set({ userPosts: posts }),
+      clearUserProfile: () => set({ userProfile: null, userPosts: [], isOnboarded: false }),
+      setOnboarded: (value) => set({ isOnboarded: value }),
+
       // Competitors
       competitors: mockCompetitors,
       selectedCompetitorId: null,
@@ -120,6 +139,9 @@ export const useStore = create<AppState>()(
     {
       name: 'trendly-storage',
       partialize: (state) => ({
+        userProfile: state.userProfile,
+        userPosts: state.userPosts,
+        isOnboarded: state.isOnboarded,
         competitors: state.competitors,
         widgets: state.widgets,
         sidebarOpen: state.sidebarOpen,

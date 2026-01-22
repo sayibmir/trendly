@@ -29,7 +29,7 @@ const settingsSections = [
 ];
 
 export default function SettingsView() {
-  const { widgets, toggleWidget } = useStore();
+  const { widgets, toggleWidget, userProfile, clearUserProfile, setActiveView } = useStore();
   const [activeSection, setActiveSection] = useState('profile');
   const [notifications, setNotifications] = useState({
     newPosts: true,
@@ -69,6 +69,35 @@ export default function SettingsView() {
       <div className="flex-1 overflow-y-auto">
         {activeSection === 'profile' && (
           <div className="space-y-6">
+            {/* Connected Instagram Account */}
+            {userProfile && (
+              <div className="card card-coral">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={userProfile.avatar}
+                      alt={userProfile.displayName}
+                      className="w-16 h-16 rounded-xl ring-2 ring-[--coral]/30"
+                    />
+                    <div>
+                      <p className="text-sm text-white/50">Connected Instagram</p>
+                      <h3 className="text-lg font-semibold">{userProfile.displayName}</h3>
+                      <p className="text-white/50">@{userProfile.username}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      clearUserProfile();
+                      setActiveView('onboarding');
+                    }}
+                    className="btn-secondary text-sm"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="card">
               <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'var(--font-display)' }}>
                 Profile Settings
@@ -76,16 +105,24 @@ export default function SettingsView() {
 
               <div className="flex items-start gap-6 mb-8">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[--ocean] to-[--lavender] flex items-center justify-center text-3xl font-bold">
-                    SM
-                  </div>
+                  {userProfile ? (
+                    <img
+                      src={userProfile.avatar}
+                      alt={userProfile.displayName}
+                      className="w-24 h-24 rounded-2xl"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[--ocean] to-[--lavender] flex items-center justify-center text-3xl font-bold">
+                      SM
+                    </div>
+                  )}
                   <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[--coral] flex items-center justify-center text-white hover:bg-[--coral-light] transition-colors">
                     <Palette className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold">Sarah Miller</h3>
-                  <p className="text-white/50">sarah@example.com</p>
+                  <h3 className="text-lg font-semibold">{userProfile?.displayName || 'Your Name'}</h3>
+                  <p className="text-white/50">{userProfile ? `@${userProfile.username}` : 'your@email.com'}</p>
                   <span className="badge badge-coral mt-2">Pro Plan</span>
                 </div>
               </div>
@@ -93,15 +130,15 @@ export default function SettingsView() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-white/60 mb-2">Full Name</label>
-                  <input type="text" defaultValue="Sarah Miller" className="input" />
+                  <input type="text" defaultValue={userProfile?.displayName || ''} className="input" />
                 </div>
                 <div>
                   <label className="block text-sm text-white/60 mb-2">Email</label>
-                  <input type="email" defaultValue="sarah@example.com" className="input" />
+                  <input type="email" defaultValue="" placeholder="your@email.com" className="input" />
                 </div>
                 <div>
                   <label className="block text-sm text-white/60 mb-2">Instagram Handle</label>
-                  <input type="text" defaultValue="@sarahmiller" className="input" />
+                  <input type="text" defaultValue={userProfile ? `@${userProfile.username}` : ''} className="input" disabled />
                 </div>
                 <div>
                   <label className="block text-sm text-white/60 mb-2">Timezone</label>

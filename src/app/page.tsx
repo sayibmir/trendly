@@ -8,9 +8,15 @@ import CompetitorsView from '@/components/views/CompetitorsView';
 import AnalyticsView from '@/components/views/AnalyticsView';
 import ReportsView from '@/components/views/ReportsView';
 import SettingsView from '@/components/views/SettingsView';
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 
 export default function Home() {
-  const { sidebarOpen, activeView } = useStore();
+  const { sidebarOpen, activeView, isOnboarded } = useStore();
+
+  // Show onboarding if user hasn't connected their account
+  if (!isOnboarded) {
+    return <OnboardingFlow />;
+  }
 
   const renderView = () => {
     switch (activeView) {
@@ -24,6 +30,8 @@ export default function Home() {
         return <ReportsView />;
       case 'settings':
         return <SettingsView />;
+      case 'onboarding':
+        return <OnboardingFlow />;
       default:
         return <DashboardView />;
     }

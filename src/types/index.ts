@@ -1,5 +1,24 @@
 // Core types for Trendly - Instagram Competitor Analysis Platform
 
+export interface UserProfile {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+  bio: string;
+  followers: number;
+  following: number;
+  postsCount: number;
+  engagementRate: number;
+  niche: string[];
+  location: string;
+  averageLikes: number;
+  averageComments: number;
+  postingFrequency: number;
+  growthRate: number;
+  connectedAt: Date;
+}
+
 export interface Competitor {
   id: string;
   username: string;
@@ -61,7 +80,7 @@ export interface ActionableSuggestion {
 
 export interface DashboardWidget {
   id: string;
-  type: 'stats' | 'chart' | 'competitors' | 'posts' | 'suggestions' | 'trends' | 'hashtags' | 'timing';
+  type: 'stats' | 'chart' | 'competitors' | 'posts' | 'suggestions' | 'trends' | 'hashtags' | 'timing' | 'comparison';
   title: string;
   size: 'small' | 'medium' | 'large';
   position: { x: number; y: number };
@@ -116,4 +135,21 @@ export interface NicheSuggestion {
   competitors: Competitor[];
   avgFollowers: number;
   avgEngagement: number;
+}
+
+export interface ComparisonMetric {
+  metric: string;
+  user: number;
+  competitorAvg: number;
+  topCompetitor: number;
+  difference: number; // percentage difference from competitor avg
+  status: 'ahead' | 'behind' | 'on-par';
+}
+
+export interface GapAnalysis {
+  category: string;
+  userValue: number | string;
+  competitorBest: number | string;
+  recommendation: string;
+  priority: 'high' | 'medium' | 'low';
 }
