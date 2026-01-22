@@ -28,16 +28,31 @@ export default function AddCompetitorModal({ isOpen, onClose }: AddCompetitorMod
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Competitor[]>([]);
   const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
+  const [searchError, setSearchError] = useState('');
 
   const niches = ['Travel', 'Fashion', 'Fitness', 'Food', 'Beauty', 'Lifestyle', 'Tech', 'Photography', 'Art', 'Music'];
   const locations = ['Worldwide', 'United States', 'United Kingdom', 'Germany', 'France', 'Dubai', 'Australia', 'Canada'];
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
+    setSearchError('');
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Try to fetch real Instagram data
+      const response = await fetch(`/api/instagram/profile?username=${encodeURIComponent(searchQuery.trim())}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.profile) {
+          setSearchResults([data.profile]);
+          setIsSearching(false);
+          return;
+        }
+      }
+      
+      // Fallback to mock data if API fails or no key configured
+      console.log('Using mock data (API not configured or failed)');
       const mockResult: Competitor = {
         id: `new-${Date.now()}`,
         username: searchQuery.toLowerCase().replace(/[^a-z0-9_]/g, ''),
@@ -58,8 +73,33 @@ export default function AddCompetitorModal({ isOpen, onClose }: AddCompetitorMod
         growthRate: Number((Math.random() * 8 - 2).toFixed(1)),
       };
       setSearchResults([mockResult]);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError('Failed to search. Using demo mode.');
+      // Create mock result on error
+      const mockResult: Competitor = {
+        id: `new-${Date.now()}`,
+        username: searchQuery.toLowerCase().replace(/[^a-z0-9_]/g, ''),
+        displayName: searchQuery,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${searchQuery}`,
+        bio: 'Content creator and influencer (Demo)',
+        followers: Math.floor(Math.random() * 500000) + 50000,
+        following: Math.floor(Math.random() * 2000) + 500,
+        postsCount: Math.floor(Math.random() * 1000) + 100,
+        engagementRate: Number((Math.random() * 8 + 2).toFixed(1)),
+        niche: selectedNiches.length > 0 ? selectedNiches : ['Lifestyle'],
+        location: 'Unknown',
+        isTracked: false,
+        addedAt: new Date(),
+        averageLikes: Math.floor(Math.random() * 50000) + 5000,
+        averageComments: Math.floor(Math.random() * 2000) + 100,
+        postingFrequency: Math.floor(Math.random() * 10) + 3,
+        growthRate: Number((Math.random() * 8 - 2).toFixed(1)),
+      };
+      setSearchResults([mockResult]);
+    } finally {
       setIsSearching(false);
-    }, 1500);
+    }
   };
 
   const handleAddCompetitor = (competitor: Competitor) => {
@@ -156,6 +196,13 @@ export default function AddCompetitorModal({ isOpen, onClose }: AddCompetitorMod
                   )}
                 </button>
               </div>
+
+              {/* Error/Info Message */}
+              {searchError && (
+                <div className="p-3 rounded-lg bg-[--sunset]/10 border border-[--sunset]/30 text-sm text-[--sunset]">
+                  {searchError}
+                </div>
+              )}
 
               {/* Search Results */}
               {searchResults.length > 0 && (
