@@ -2,23 +2,14 @@
 
 import { useState } from 'react';
 import { useStore } from '@/store/useStore';
-import StatsOverview from '@/components/dashboard/StatsOverview';
-import EngagementChart from '@/components/dashboard/EngagementChart';
-import ContentTypeChart from '@/components/dashboard/ContentTypeChart';
-import TopPostsWidget from '@/components/dashboard/TopPostsWidget';
-import TrendInsightsWidget from '@/components/dashboard/TrendInsightsWidget';
-import SuggestionsWidget from '@/components/dashboard/SuggestionsWidget';
-import HashtagsWidget from '@/components/dashboard/HashtagsWidget';
-import TimingHeatmap from '@/components/dashboard/TimingHeatmap';
-import CompetitorsListWidget from '@/components/dashboard/CompetitorsListWidget';
 import ComparisonWidget from '@/components/dashboard/ComparisonWidget';
-import GapAnalysisWidget from '@/components/dashboard/GapAnalysisWidget';
-import AIInsightsWidget from '@/components/dashboard/AIInsightsWidget';
+import SuggestionsWidget from '@/components/dashboard/SuggestionsWidget';
+import CompetitorsListWidget from '@/components/dashboard/CompetitorsListWidget';
 import AddCompetitorModal from '@/components/competitors/AddCompetitorModal';
-import { User, TrendingUp, Users } from 'lucide-react';
+import { TrendingUp, Users } from 'lucide-react';
 
 export default function DashboardView() {
-  const { userProfile } = useStore();
+  const { userProfile, competitors } = useStore();
   const [showAddModal, setShowAddModal] = useState(false);
 
   const formatNumber = (num: number) => {
@@ -27,9 +18,11 @@ export default function DashboardView() {
     return num.toString();
   };
 
+  const trackedCount = competitors.filter(c => c.isTracked).length;
+
   return (
     <div className="space-y-6">
-      {/* Page Header with User Profile */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {userProfile && (
@@ -41,140 +34,95 @@ export default function DashboardView() {
           )}
           <div>
             <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-              {userProfile ? `Welcome, ${userProfile.displayName.split(' ')[0]}` : 'Dashboard'}
+              {userProfile ? `Hi, ${userProfile.displayName.split(' ')[0]}` : 'Dashboard'}
             </h1>
             <p className="text-white/50 mt-1">
-              {userProfile 
-                ? `@${userProfile.username} • ${formatNumber(userProfile.followers)} followers`
-                : 'Track your competitors and discover growth opportunities'
-              }
+              {userProfile && `@${userProfile.username} • ${formatNumber(userProfile.followers)} followers`}
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-white/40">Last updated</p>
-          <p className="text-sm font-medium">Just now</p>
-        </div>
       </div>
 
-      {/* User Stats Summary (if connected) */}
+      {/* Quick Stats */}
       {userProfile && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="card card-coral p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[--coral]/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-[--coral]" />
-              </div>
+              <Users className="w-5 h-5 text-[--coral]" />
               <div>
                 <p className="text-2xl font-bold">{formatNumber(userProfile.followers)}</p>
-                <p className="text-xs text-white/50">Your Followers</p>
+                <p className="text-xs text-white/50">Followers</p>
               </div>
             </div>
           </div>
-          <div className="card card-ocean p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[--ocean]/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-[--ocean]" />
-              </div>
+              <TrendingUp className="w-5 h-5 text-[--ocean]" />
               <div>
                 <p className="text-2xl font-bold">{userProfile.engagementRate}%</p>
-                <p className="text-xs text-white/50">Your Engagement</p>
+                <p className="text-xs text-white/50">Engagement</p>
               </div>
             </div>
           </div>
-          <div className="card card-mint p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[--mint]/20 flex items-center justify-center">
-                <User className="w-5 h-5 text-[--mint]" />
-              </div>
+              <Users className="w-5 h-5 text-[--mint]" />
               <div>
-                <p className="text-2xl font-bold">{formatNumber(userProfile.averageLikes)}</p>
-                <p className="text-xs text-white/50">Avg Likes</p>
+                <p className="text-2xl font-bold">{trackedCount}</p>
+                <p className="text-xs text-white/50">Competitors</p>
               </div>
             </div>
           </div>
-          <div className="card card-lavender p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[--lavender]/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-[--lavender]" />
-              </div>
+              <TrendingUp className={`w-5 h-5 ${userProfile.growthRate >= 0 ? 'text-[--mint]' : 'text-[--coral]'}`} />
               <div>
                 <p className={`text-2xl font-bold ${userProfile.growthRate >= 0 ? 'text-[--mint]' : 'text-[--coral]'}`}>
                   {userProfile.growthRate >= 0 ? '+' : ''}{userProfile.growthRate}%
                 </p>
-                <p className="text-xs text-white/50">Growth Rate</p>
+                <p className="text-xs text-white/50">Growth</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Competitor Stats Overview */}
-      <StatsOverview />
-
-      {/* Main Grid */}
+      {/* Main Content */}
       <div className="grid grid-cols-12 gap-6">
-        {/* Comparison Widget - You vs Competitors */}
-        {userProfile && (
-          <div className="col-span-12 lg:col-span-6">
-            <ComparisonWidget />
-          </div>
-        )}
-
-        {/* Gap Analysis */}
-        {userProfile && (
-          <div className="col-span-12 lg:col-span-6">
-            <GapAnalysisWidget />
-          </div>
-        )}
-
-        {/* Engagement Chart - Full Width */}
-        <div className="col-span-12 lg:col-span-8">
-          <EngagementChart />
-        </div>
-
         {/* Competitors List */}
         <div className="col-span-12 lg:col-span-4">
           <CompetitorsListWidget onAddClick={() => setShowAddModal(true)} />
         </div>
 
-        {/* Content Type Chart */}
-        <div className="col-span-12 lg:col-span-6">
-          <ContentTypeChart />
-        </div>
-
-        {/* Top Posts */}
-        <div className="col-span-12 lg:col-span-6">
-          <TopPostsWidget />
-        </div>
-
-        {/* AI Insights */}
-        <div className="col-span-12">
-          <AIInsightsWidget />
-        </div>
-
-        {/* Trend Insights */}
-        <div className="col-span-12 lg:col-span-6">
-          <TrendInsightsWidget />
+        {/* Comparison */}
+        <div className="col-span-12 lg:col-span-8">
+          {userProfile && trackedCount > 0 ? (
+            <ComparisonWidget />
+          ) : (
+            <div className="card h-full flex items-center justify-center min-h-[300px]">
+              <div className="text-center">
+                <Users className="w-12 h-12 text-white/20 mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Add Competitors</h3>
+                <p className="text-white/50 text-sm mb-4">
+                  Track competitors to see how you compare
+                </p>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="btn-primary"
+                >
+                  Add Competitor
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Suggestions */}
-        <div className="col-span-12 lg:col-span-6">
+        <div className="col-span-12">
           <SuggestionsWidget />
-        </div>
-
-        {/* Hashtags */}
-        <div className="col-span-12 lg:col-span-4">
-          <HashtagsWidget />
-        </div>
-
-        {/* Timing Heatmap */}
-        <div className="col-span-12 lg:col-span-8">
-          <TimingHeatmap />
         </div>
       </div>
 
-      {/* Add Competitor Modal */}
       <AddCompetitorModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
     </div>
   );

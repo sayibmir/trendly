@@ -5,15 +5,12 @@ import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import DashboardView from '@/components/views/DashboardView';
 import CompetitorsView from '@/components/views/CompetitorsView';
-import AnalyticsView from '@/components/views/AnalyticsView';
-import ReportsView from '@/components/views/ReportsView';
 import SettingsView from '@/components/views/SettingsView';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 
 export default function Home() {
   const { sidebarOpen, activeView, isOnboarded } = useStore();
 
-  // Show onboarding if user hasn't connected their account
   if (!isOnboarded) {
     return <OnboardingFlow />;
   }
@@ -24,14 +21,8 @@ export default function Home() {
         return <DashboardView />;
       case 'competitors':
         return <CompetitorsView />;
-      case 'analytics':
-        return <AnalyticsView />;
-      case 'reports':
-        return <ReportsView />;
       case 'settings':
         return <SettingsView />;
-      case 'onboarding':
-        return <OnboardingFlow />;
       default:
         return <DashboardView />;
     }
@@ -39,18 +30,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[--background] bg-grid bg-gradient-radial">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Header */}
       <Header />
-
-      {/* Main Content */}
-      <main
-        className={`pt-20 pb-8 px-6 transition-all duration-300 ${
-          sidebarOpen ? 'ml-64' : 'ml-20'
-        }`}
-      >
+      <main className={`pt-20 pb-8 px-6 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {renderView()}
       </main>
     </div>
